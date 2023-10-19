@@ -1,10 +1,13 @@
-const express = require("express");
-const app = express();
-app.use(express.json());
+const mongoose = require("mongoose");
 
-client();
-app.get("/", (req, res) => res.send("Hello Instagram CPA!"));
-const port = 7000;
-app.listen(port, "0.0.0.0", () => 
-   console.log("Server is running on port " + port)
-);
+const connect = async() => {
+  await mongoose
+   //  .connect(process.env.DB_CONNECTION)
+    .connect("mongodb://localhost:27017")
+    .then((res) => console.log("DB connected ..."))
+    .catch((err) => console.log("Error connecting to DB", err));
+    return mongoose;
+    
+};
+ 
+module.exports = connect;
