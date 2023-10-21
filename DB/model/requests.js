@@ -10,6 +10,6 @@ const userRequestSchema = new mongoose.Schema({
    timestamps: true
 })
 
-const requestModel = mongoose.model('request', userRequestSchema)
+const reqModel = mongoose.model('request', userRequestSchema)
 
-module.exports = requestModel
+module.exports = reqModel
