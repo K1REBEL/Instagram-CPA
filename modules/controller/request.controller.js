@@ -15,7 +15,7 @@ const getData = async (req, res) => {
     const html = response.data;
     const $ = cheerio.load(html);
 
-    // Extract the desired information from the HTML
+   // Extract the desired information from the HTML
    const imageSrc = $('#myImg').attr('src');
    const followers = $('.profile-followers:first').text();
    const following = $('.profile-following:first').text();
@@ -23,9 +23,13 @@ const getData = async (req, res) => {
    const rawBio = $('.profile-desc').text();  //.replace(/\n/g, `<br>`);
    let bio = rawBio.split("You are current view")[0]
    const userData = { username, imageSrc, followers, following, bio }
-
-   //  console.log(userData);
+   
+   if (!followers){ res.json({ message: "Wrong username or server down."})}
+   else{
+    //  console.log(userData);
     res.json({ message: "User data ready!", userData});
+   }
+   
 
    } catch (error) {
       res.status(400).json({ message: error.message });
