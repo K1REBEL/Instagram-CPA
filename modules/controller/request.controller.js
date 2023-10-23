@@ -2,6 +2,8 @@ var jwt = require("jsonwebtoken");
 const axios = require('axios');
 const cheerio = require("cheerio");
 const reqModel = require("../../DB/model/requests")
+const { getDatabase } = require('../../DB/sqliteconnection');
+const moment = require('moment');
 
 
 const getData = async (req, res) => {
@@ -50,20 +52,61 @@ const congrats = async (req, res) => {
    console.log(req.username, req.followers);
    const username = req.username;
    const follow_no = req.followers;
+   const today = new Date();
+   const date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
+   const now = moment().format('hh:mm');
+   // console.log(date, now);
+
    try {
       const request = new reqModel({ username, follow_no });
       const savedReq = await request.save();
       res.json({ message: "Request Saved!", savedReq });
+      
+      const db = getDatabase();
+
+      db.run("INSERT INTO requests(username, followers_count, date, time) VALUES (?, ?, ?, ?)",
+      username, follow_no, date, now, (err) => {
+      if (err) {
+         console.error(err.message);
+      } else {
+         console.log("Data inserted successfully.");
+      }
+  });
    } catch (error) {
       res.status(400).json({ message: error.message });
    }
 
 }
 
+const retrieve = async (req, res) => {
+   const db = getDatabase();
+   let sql = `SELECT * FROM requests`;
+ 
+   db.all(sql, [], (err, rows) => {
+     if (err) {
+       console.error(err.message);
+       res.status(500).json({ error: 'An error occurred' });
+     } else {
+       const result = rows.map((row) => {
+         return {
+           id: row.id,
+           username: row.username,
+           followers_count: row.followers_count,
+           date: row.date,
+           time: row.time
+         };
+       });
+       res.json(result);
+       console.log(result);
+     }
+   });
+ };
+
 
 module.exports = {
    getData,
    selectFollowers,
    congrats,
+   retrieve,
 
 }
