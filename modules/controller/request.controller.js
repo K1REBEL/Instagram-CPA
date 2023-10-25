@@ -4,6 +4,12 @@ const cheerio = require("cheerio");
 const reqModel = require("../../DB/model/requests")
 const { getDatabase } = require('../../DB/sqliteconnection');
 const moment = require('moment');
+const http = require("http");
+// const countryip = require("ip-countryside")
+const requestIp = require('request-ip');
+const geoip = require('geoip-lite');
+
+
 
 
 const getData = async (req, res) => {
@@ -51,6 +57,17 @@ const selectFollowers = (req, res) => {
    }
 }
 
+const getCountry = (req) => {
+   const clientIp = requestIp.getClientIp(req);
+   const geo = geoip.lookup(clientIp);
+   // console.log(clientIp);
+ 
+   if (geo && geo.country) {
+     return geo.country;
+   } else {
+     return 'Unknown';
+   }
+ };
 
 const congrats = async (req, res) => {
    console.log(req.username, req.followers);
@@ -59,17 +76,22 @@ const congrats = async (req, res) => {
    const today = new Date();
    const date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
    const now = moment().format('hh:mm');
-   // console.log(date, now);
+   console.log(req.ip);
+   // const country = countryip.geoip("156.211.142.125");
+   const country = getCountry(req);
+   
 
    try {
+      // const country = countryip.geoip(req.ip);
+      console.log(country);
       const request = new reqModel({ username, follow_no });
       const savedReq = await request.save();
       res.json({ message: "Request Saved!", savedReq });
       
       const db = getDatabase();
 
-      db.run("INSERT INTO requests(username, followers_count, date, time) VALUES (?, ?, ?, ?)",
-      username, follow_no, date, now, (err) => {
+      db.run("INSERT INTO requests(username, followers_count, country, date, time) VALUES (?, ?, ?, ?, ?)",
+      username, follow_no, country, date, now, (err) => {
       if (err) {
          console.error(err.message);
       } else {
@@ -79,8 +101,9 @@ const congrats = async (req, res) => {
    } catch (error) {
       res.status(400).json({ message: error.message });
    }
-
 }
+
+
 
 const retrieve = async (req, res) => {
    const db = getDatabase();
@@ -96,6 +119,7 @@ const retrieve = async (req, res) => {
            id: row.id,
            username: row.username,
            followers_count: row.followers_count,
+           country: row.country,
            date: row.date,
            time: row.time
          };

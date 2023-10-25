@@ -7,7 +7,7 @@ const sqlient = async () => {
     if (err) return console.error(err.message);
   });
 
-  // db.run(`CREATE TABLE requests(id INTEGER PRIMARY KEY, username, followers_count, date, time)`);
+  // db.run(`CREATE TABLE requests(id INTEGER PRIMARY KEY, username, followers_count, country, date, time)`);
   // db.run("DROP TABLE requests");
 };
 
