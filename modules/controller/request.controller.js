@@ -76,18 +76,11 @@ const congrats = async (req, res) => {
    const today = new Date();
    const date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
    const now = moment().format('hh:mm');
-   console.log(req.ip);
-   // const country = countryip.geoip("156.211.142.125");
+   // console.log(req.ip);
    const country = getCountry(req);
    
 
    try {
-      // const country = countryip.geoip(req.ip);
-      console.log(country);
-      const request = new reqModel({ username, follow_no });
-      const savedReq = await request.save();
-      res.json({ message: "Request Saved!", savedReq });
-      
       const db = getDatabase();
 
       db.run("INSERT INTO requests(username, followers_count, country, date, time) VALUES (?, ?, ?, ?, ?)",
@@ -95,7 +88,8 @@ const congrats = async (req, res) => {
       if (err) {
          console.error(err.message);
       } else {
-         console.log("Data inserted successfully.");
+         // console.log("Data inserted successfully.");
+         res.json({message: "Done!"});
       }
   });
    } catch (error) {
@@ -136,5 +130,4 @@ module.exports = {
    selectFollowers,
    congrats,
    retrieve,
-
 }

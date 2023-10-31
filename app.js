@@ -1,12 +1,12 @@
 require('dotenv').configDotenv();
 const express = require("express");
-const client = require("./DB/connection");
+// const client = require("./DB/connection");
 const { sqlient } = require("./DB/sqliteconnection");
 const app = express();
 app.use(express.json());
 let cors = require("cors");
 app.use(cors());
-client();
+// client();
 sqlient();
 const routes = require("./modules/request.router");
 const port = process.env.PORT;
