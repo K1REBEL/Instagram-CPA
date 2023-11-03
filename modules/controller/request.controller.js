@@ -1,7 +1,6 @@
 var jwt = require("jsonwebtoken");
 const axios = require('axios');
 const cheerio = require("cheerio");
-const reqModel = require("../../DB/model/requests")
 const { getDatabase } = require('../../DB/sqliteconnection');
 const moment = require('moment');
 const http = require("http");
@@ -60,6 +59,7 @@ const selectFollowers = (req, res) => {
 const getCountry = (req) => {
    const clientIp = requestIp.getClientIp(req);
    const geo = geoip.lookup(clientIp);
+   // const geo = geoip.lookup("testip");
    // console.log(clientIp);
  
    if (geo && geo.country) {
@@ -89,7 +89,7 @@ const congrats = async (req, res) => {
          console.error(err.message);
       } else {
          // console.log("Data inserted successfully.");
-         res.json({message: "Done!"});
+         res.json({ message: "Done!", username, follow_no });
       }
   });
    } catch (error) {
@@ -124,10 +124,38 @@ const retrieve = async (req, res) => {
    });
  };
 
+ const retrieve_today = async (req, res) => {
+   const today = new Date();
+   const date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
+   const db = getDatabase();
+   let sql = `SELECT * FROM requests WHERE date = '${date}'`;
+ 
+   db.all(sql, [], (err, rows) => {
+     if (err) {
+       console.error(err.message);
+       res.status(500).json({ error: 'An error occurred' });
+     } else {
+       const result = rows.map((row) => {
+         return {
+           id: row.id,
+           username: row.username,
+           followers_count: row.followers_count,
+           country: row.country,
+           date: row.date,
+           time: row.time
+         };
+       });
+       res.json(result);
+       console.log(result);
+     }
+   });
+ };
+
 
 module.exports = {
    getData,
    selectFollowers,
    congrats,
    retrieve,
+   retrieve_today,
 }

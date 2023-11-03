@@ -52,9 +52,12 @@ db.all(`SELECT * FROM requests WHERE date = '${date}'`, [], (err, rows) => {
   // Convert the data to a worksheet
   let worksheet = XLSX.utils.json_to_sheet(rows);
 
-  // Create a new workbook and add the worksheet
-  let workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, today.getDate());
+  // Read the existing workbook
+  let workbook = XLSX.readFile(path.join(__dirname, `../excel/${getMonthString(today.getMonth())}.xlsx`));
+
+  // Add a new worksheet to the workbook
+  let newWorksheet = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(workbook, newWorksheet, today.getDate());
 
   // Write the workbook to a file
   XLSX.writeFile(workbook, path.join(__dirname, `../excel/${getMonthString(today.getMonth())}.xlsx`));
